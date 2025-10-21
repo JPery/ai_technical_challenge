@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <head>
+        <title>Chat</title>
+    </head>
+    <style>
+        body{
+            font-family: sans-serif;
+        }
+
+        ul{
+            margin-bottom: 96px;
+        }
+
+        li{
+            list-style-type: none;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        li > p{
+            white-space: break-spaces;
+        }
+        .role-agent{
+            background-color: lightblue;
+        }
+        .role-user{
+            background-color: lightskyblue;
+            text-align: end;
+        }
+        li:before{
+            display: block;
+            margin-bottom: 8px;
+        }
+        .role-agent::before {
+            content: "🤖";
+
+        }
+        .role-user::before {
+            content: "👤";
+        }
+
+        form{
+            position: fixed;
+            bottom: 0;
+            left:0;
+            right:0;
+            padding: 24px;
+            background-color: lightblue;
+            border-radius: 16px 16px 0 0
+        }
+        form > input{
+            width: 75%;
+            border: 2px solid cornflowerblue
+        }
+        form > button {
+            width: 20%;
+            border-radius: 16px;
+            border: 2px solid cornflowerblue;
+            background-color: lightskyblue;
+            font-weight: bold
+        }
+    </style>
+    <body>
+        <h1>Airline Policy Chat</h1>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        <script>
+            const ws = new WebSocket("ws://localhost:8000/ws");
+            ws.onmessage = async function(event) {
+                const messages = document.getElementById('messages')
+                const data = await JSON.parse(event.data)
+                 if (messages.children.length > 0 && messages.children[messages.children.length-1].classList.value === 'role-agent' && data.role === 'agent'){
+                     messages.children[messages.children.length-1].children[0].textContent += data.message
+                 }
+                 else{
+                    const content = document.createElement('p')
+                    content.textContent = data.message
+                    const message = document.createElement('li')
+                    message.classList.add("role-" + data.role)
+                    message.appendChild(content)
+                    messages.appendChild(message)
+                 }
+
+
+            };
+            function sendMessage(event) {
+                const input = document.getElementById("messageText")
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
