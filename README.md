@@ -1,16 +1,59 @@
-## Technical Challenge: LLM Airline Policy App
+## JPery's LLM Airline Policy App
 
-### Overview
+### Features
 
-Welcome the Flight Center AI Center Of Excellence technical challenge. We're excited about your interest in joining us using AI to revolutionize the travel industry.
+Chatbot application that can answer questions about airline policies. The application has the following features:
 
-The purpose of this challenge is to assess your skills in using Python and Large Language Models (LLMs).
+1. **User Interface**: A simple web interface where users can input questions and get answers has been created using plan HTML, CSS and JS. Connection with the agent has been developed via WebSockets using FastAPI.
+2. **LLM Integration**: A pre-trained LLM model (gpt-4.1-mini was selected as it provides a nice price to performance ratio) is used to understand and answer questions. In order to improve its performance it has been given a custom System Prompt which can be located at `agent/constants.py`.
+3. **Document Processing**: In order to extract text from the policy documents, a script `policy_parser.py` was created. It uses `pypdf` in order to parse PDF files.
+4. **Vector Database**: In order to do an efficient similarity search, an Hybrid Retriever (70% dense, 30% sparse) has been developed using the model `sentence-transformers/all-MiniLM-L6-v2` as Dense Retriever and a `BM25` as Sparse Retriever.
 
-### Challenge Description
+## Installation
 
-Your task is to create a small application where a user can ask questions about the policy of an airline. The application should query the airline documents to retrieve relevant information based on the user questions. The application should leverage an LLM for understanding and answering questions and a vector database to store and retrieve document embeddings efficiently.
+Create a virtual environment and activate it:
 
-We've included a collection of airline policies. Your task is to create an application where users can ask questions and get answers for queries like the following:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+```
+
+Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+### Parser
+
+In order to run the scrapper to get the data from policies, you have to run the `policy_parser.py` script. This script will parse the files and convert them into a custom format inside a `parsed_policies` folder.
+
+```bash
+python policy_parser.py
+```
+
+This script can take a while to run, depending on the amount of data to be scraped. It will create a directory named `parsed_policies` containing the parsed data.
+
+### Agent
+
+You have to provide your OpenAI API keys by setting the environment variables `OPENAI_API_KEY` and `OPENAI_API_URL` respectively. You can do this in your terminal or command prompt:
+
+```bash
+export OPENAI_API_KEY='your_openai_api_key'
+export OPENAI_API_URL='your_openai_api_proxy_url'
+```
+
+To run the agent, you can run the main script with fastapi:
+
+```bash
+fastapi dev main.py
+```
+
+### Challenge Queries
+
+The following set of test queries has been tested with successful results:
 
 1. `Can my pet travel with me on the plane on Delta?`
 
@@ -19,31 +62,3 @@ We've included a collection of airline policies. Your task is to create an appli
 3. `What is the baggage policy for American Airlines?`
 
 4. `My wife is 8 months pregnant, can she travel on a Delta flight?`
-
-### Objectives
-
-Build a chatbot application that can answer questions about airline policies. The application should have the following features:
-
-1. **User Interface**: A simple web interface where users can input questions and get answers.
-2. **LLM Integration**: Use a pre-trained LLM model to understand and answer questions.
-3. **Document Processing**: Extract text from the airline policy documents.
-4. **Vector Database**: Store document embeddings in a vector database for efficient similarity search.
-
-### Provided Policies
-
-The airline policy documents are provided in PDF and markdown format. You will need to process these documents to extract the text before processing.
-
-### Deliverables
-
-- Code hosted on a private GitHub repository.
-  - Fork this repository to your GitHub account.
-  - Push your developed code to your fork.
-  - Email us the link to your private repository when you are ready for review.
-- A README file documenting:
-  - How to set up and run your application.
-  - A brief explanation of your design choices and technologies used.
-  - Any challenges you encountered and how you resolved them.
-
-### LLM Model
-
-You can use any pre-trained LLM model of your choice. We recommend using OpenAI's GPT models, an API Key will be provided to you.
