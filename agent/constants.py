@@ -7,9 +7,7 @@ LLM_MODEL_NAME = "gpt-4.1-mini"
 SENTENCE_TRANSFORMER_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 RETRIEVER_DIR = "saved_retriever"
 DEFAULT_LANG = "english"
-DEFAULT_TOP_K = 25
-MAX_TOP_K = 50
-LLM_MAX_TOKENS = 512  # Max tokens for LLM response
+DEFAULT_TOP_K = 5
 DEFAULT_TEMPERATURE = 0.1
 DEFAULT_TOP_P = 0.95
 

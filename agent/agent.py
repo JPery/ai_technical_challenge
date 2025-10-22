@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import List, Dict
 from openai import OpenAI
@@ -7,6 +8,7 @@ from agent.constants import SYSTEM_PROMPT, DEFAULT_LANG, DEFAULT_TOP_K, CONTEXT_
 from agent.retrievers import HybridRetriever
 from agent.utils import load_retriever, save_retriever, load_and_preprocess_data
 
+LOGGER = logging.getLogger("airline-agent:agent")
 
 def setup_agent():
     """
@@ -20,15 +22,15 @@ def setup_agent():
 
     # Loads an existing retriever or creates a new one
     if os.path.exists(RETRIEVER_DIR):
-        print(f"Loading retriever from {RETRIEVER_DIR}")
+        LOGGER.info(f"Loading retriever from {RETRIEVER_DIR}")
         retriever = load_retriever()
     else:
-        print(f"Creating new retriever")
+        LOGGER.info(f"Creating new retriever")
         # Carga el dataset
         dataset = load_and_preprocess_data(DATA_FOLDER)
         retriever = HybridRetriever()
         retriever.build_index(dataset, lang=DEFAULT_LANG)
-        print(f"Saving retriever in {RETRIEVER_DIR}")
+        LOGGER.info(f"Saving retriever in {RETRIEVER_DIR}")
         save_retriever(retriever)
         retriever = retriever
 
