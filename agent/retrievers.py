@@ -5,8 +5,7 @@ from nltk import word_tokenize
 from nltk.corpus import stopwords
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-from agent.constants import DEFAULT_LANG, DEFAULT_TOP_K, SENTENCE_TRANSFORMER_MODEL
+from agent.constants import DEFAULT_LANG, DEFAULT_TOP_K, SENTENCE_TRANSFORMER_MODEL, MIN_HYBRID_RETRIEVER_SCORE
 
 
 class TextPreprocessor:
@@ -142,6 +141,7 @@ class HybridRetriever(Retriever):
                                 key=lambda x: x[1],
                                 reverse=True)[:top_k]
         return [(idx, score) for idx, score in sorted_results]
+        return [(idx, score) for idx, score in sorted_results if score > MIN_HYBRID_RETRIEVER_SCORE]
 
     def search_documents(self, query: str, top_k: int = DEFAULT_TOP_K, lang: str = DEFAULT_LANG) -> List[str]:
         relevant_documents = self.search(query, top_k, lang)
