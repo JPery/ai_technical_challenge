@@ -14,6 +14,10 @@ async def get():
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     chatbot = setup_agent()
+    await websocket.send_json({
+        "role": "loaded-model",
+        "message": None
+    })
     while True:
         user_query = await websocket.receive_text()
         await websocket.send_json({

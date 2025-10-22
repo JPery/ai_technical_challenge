@@ -65,33 +65,82 @@
             background-color: lightskyblue;
             font-weight: bold
         }
+
+        #loader{
+            text-align: center;
+          margin: 50vh auto 0;
+          transform: translateY(-100%);
+        }
+
+        #spinner {
+            margin: 0 auto 16px;
+          width: 50px;
+          aspect-ratio: 1;
+          display: grid;
+        }
+        #spinner::before,
+        #spinner::after {
+          content:"";
+          grid-area: 1/1;
+          --c:no-repeat radial-gradient(farthest-side,#25b09b 92%,#0000);
+          background:
+            var(--c) 50%  0,
+            var(--c) 50%  100%,
+            var(--c) 100% 50%,
+            var(--c) 0    50%;
+          background-size: 12px 12px;
+          animation: l12 1s infinite;
+        }
+        #spinner::before {
+          margin: 4px;
+          filter: hue-rotate(45deg);
+          background-size: 8px 8px;
+          animation-timing-function: linear
+        }
+
+        @keyframes l12 {
+          100%{transform: rotate(.5turn)}
+        }
+
     </style>
     <body>
         <h1>Airline Policy Chat</h1>
         <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
+            <input type="text" id="messageText" disabled autocomplete="off"/>
+            <button id="sendButton" disabled>Send</button>
         </form>
+        <div id="loader">
+            <div id="spinner"></div>
+            Connecting to the agent...
+        </div>
+
         <ul id='messages'>
         </ul>
         <script>
             const ws = new WebSocket("ws://localhost:8000/ws");
             ws.onmessage = async function(event) {
                 const messages = document.getElementById('messages')
-                const data = await JSON.parse(event.data)
-                 if (messages.children.length > 0 && messages.children[messages.children.length-1].classList.value === 'role-agent' && data.role === 'agent'){
-                     messages.children[messages.children.length-1].children[0].textContent += data.message
-                 }
-                 else{
-                    const content = document.createElement('p')
-                    content.textContent = data.message
-                    const message = document.createElement('li')
-                    message.classList.add("role-" + data.role)
-                    message.appendChild(content)
-                    messages.appendChild(message)
-                 }
-
-
+                const data = await JSON.parse(event.data);
+                console.log(data);
+                switch (data.role){
+                    case 'loaded-model':
+                        document.getElementById('messageText').disabled = false;
+                        document.getElementById('sendButton').disabled = false;
+                        document.getElementById('loader').style.display = "none";
+                        break;
+                    case 'agent':
+                        if (messages.children.length > 0 && messages.children[messages.children.length-1].classList.value === 'role-agent'){
+                            messages.children[messages.children.length-1].children[0].textContent += data.message
+                            break
+                        }
+                    default:
+                        const content = document.createElement('p')
+                        content.textContent = data.message
+                        const message = document.createElement('li')
+                        message.classList.add("role-" + data.role)
+                        message.appendChild(content)
+                        messages.appendChild(message)
+                }
             };
             function sendMessage(event) {
                 const input = document.getElementById("messageText")
