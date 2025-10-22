@@ -71,9 +71,9 @@ class SparseRetriever(Retriever):
         self.model = BM25Encoder()
 
     def build_index(self, documents: List[str], lang: str = DEFAULT_LANG):
+        processed_docs = [TextPreprocessor.preprocess(doc, DEFAULT_LANG) for doc in documents]
+        self.model.fit(processed_docs)
         if not pc.has_index(sparse_index_name):
-            processed_docs = [TextPreprocessor.preprocess(doc, DEFAULT_LANG) for doc in documents]
-            self.model.fit(processed_docs)
             embeddings = self.model.encode_documents(processed_docs)
             pc.create_index(
                 name=sparse_index_name,
