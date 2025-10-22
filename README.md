@@ -7,7 +7,7 @@ Chatbot application that can answer questions about airline policies. The applic
 1. **User Interface**: A simple web interface where users can input questions and get answers has been created using plan HTML, CSS and JS. Connection with the agent has been developed via WebSockets using FastAPI.
 2. **LLM Integration**: A pre-trained LLM model (gpt-4.1-mini was selected as it provides a nice price to performance ratio) is used to understand and answer questions. In order to improve its performance it has been given a custom System Prompt which can be located at `agent/constants.py`.
 3. **Document Processing**: In order to extract text from the policy documents, a script `policy_parser.py` was created. It uses `pypdf` in order to parse PDF files.
-4. **Vector Database**: In order to do an efficient similarity search, an Hybrid Retriever (70% dense, 30% sparse) has been developed using the model `sentence-transformers/all-MiniLM-L6-v2` as Dense Retriever and a `BM25` as Sparse Retriever.
+4. **Vector Database**: In order to do an efficient similarity search, an Hybrid Retriever (70% dense, 30% sparse) has been developed using the model `sentence-transformers/all-MiniLM-L6-v2` as Dense Retriever and a `BM25` as Sparse Retriever. Pinecone has been used as vector database in order to store all the generated embeddings.
 
 ## Installation
 
@@ -38,11 +38,12 @@ This script can take a while to run, depending on the amount of data to be scrap
 
 ### Agent
 
-You have to provide your OpenAI API keys by setting the environment variables `OPENAI_API_KEY` and `OPENAI_API_URL` respectively. You can do this in your terminal or command prompt:
+You have to provide your OpenAI API and Pinecone API keys by setting the environment variables `OPENAI_API_KEY`, `OPENAI_API_URL` and `PINECONE_API_KEY`. You can do this in your terminal or command prompt:
 
 ```bash
 export OPENAI_API_KEY='your_openai_api_key'
 export OPENAI_API_URL='your_openai_api_proxy_url'
+export PINECONE_API_KEY='your_pinecone_api_key'
 ```
 
 To run the agent, you can run the main script with fastapi:
