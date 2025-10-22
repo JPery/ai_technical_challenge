@@ -1,8 +1,8 @@
-openai
-nltk
-numpy
-pypdf
-rank-bm25
-sentence-transformers
-scikit-learn
-fastapi
+openai==2.6.0
+nltk==3.9.2
+numpy==2.2.6
+pypdf==6.1.2
+rank-bm25==0.2.2
+sentence-transformers==5.1.1
+scikit-learn==1.7.2
+fastapi==0.119.1
