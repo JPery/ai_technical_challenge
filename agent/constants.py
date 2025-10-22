@@ -3,6 +3,7 @@ import os
 DATA_FOLDER = "parsed_policies"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_API_URL = os.getenv("OPENAI_API_URL", "")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
 LLM_MODEL_NAME = "gpt-4.1-mini"
 SENTENCE_TRANSFORMER_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 RETRIEVER_DIR = "saved_retriever"

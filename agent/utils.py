@@ -7,9 +7,7 @@ from typing import List
 from agent.constants import DATA_FOLDER, DEFAULT_LANG, RETRIEVER_DIR
 from agent.retrievers import HybridRetriever, SparseRetriever, DenseRetriever, Retriever
 
-DOCUMENTS_PICKLE = 'documents.pkl'
 SPARSE_RETRIEVER_PICKLE = 'sparse_bm25.pkl'
-DENSE_EMBEDDINGS_PICKLE = 'dense_embeddings.pkl'
 CONFIG_PICKLE = 'config.pkl'
 
 def load_and_preprocess_data(path: str) -> List[str]:
@@ -37,17 +35,9 @@ def save_retriever(retriever: HybridRetriever, save_dir=RETRIEVER_DIR):
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Save the documents
-    with open(os.path.join(save_dir, DOCUMENTS_PICKLE), 'wb') as f:
-        pickle.dump(retriever.documents, f)
-
     # Save sparse retriever data
     with open(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE), 'wb') as f:
-        pickle.dump(retriever.sparse_retriever.bm25, f)
-
-    # Save dense retriever embeddings
-    with open(os.path.join(save_dir, DENSE_EMBEDDINGS_PICKLE), 'wb') as f:
-        pickle.dump(retriever.dense_retriever.embeddings, f)
+        pickle.dump(retriever.sparse_retriever.model, f)
 
     # Save model name and weights
     config = {
@@ -81,26 +71,13 @@ def load_retriever(save_dir=RETRIEVER_DIR) -> Retriever:
     retriever.sparse_retriever = SparseRetriever()
     retriever.dense_retriever = DenseRetriever(config['model_name'])
 
-    # Load documents
-    documents_path = os.path.join(save_dir, DOCUMENTS_PICKLE)
-    if os.path.exists(documents_path):
-        with open(documents_path, 'rb') as f:
-            retriever.documents = pickle.load(f)
-    else:
-        retriever.documents = []
-
     # Initialize index if does not exist the path
-    if not os.path.exists(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE)) or not os.path.exists(
-            os.path.join(save_dir, DENSE_EMBEDDINGS_PICKLE)):
+    if not os.path.exists(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE)):
         retriever.build_index(load_and_preprocess_data(DATA_FOLDER), lang=DEFAULT_LANG)
+    else:
+        # Load sparse retriever data
+        with open(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE), 'rb') as f:
+            retriever.sparse_retriever.model = pickle.load(f)
 
-    # Load sparse retriever data
-    with open(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE), 'rb') as f:
-        retriever.sparse_retriever.bm25 = pickle.load(f)
-
-    # Load dense embeddings
-    with open(os.path.join(save_dir, DENSE_EMBEDDINGS_PICKLE), 'rb') as f:
-        retriever.dense_retriever.embeddings = pickle.load(f)
-
-    logging.getLogger("airline-agent:utils").info(f"Retriever loaded from {save_dir}")
+        logging.getLogger("airline-agent:utils").info(f"Retriever loaded from {save_dir}")
     return retriever
