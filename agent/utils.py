@@ -3,9 +3,10 @@ import os
 import glob
 import pickle
 from typing import List
-
 from agent.constants import DATA_FOLDER, DEFAULT_LANG, RETRIEVER_DIR
-from agent.retrievers import HybridRetriever, SparseRetriever, DenseRetriever, Retriever
+from agent.retrievers.sparse_retriever import SparseRetriever
+from agent.retrievers.dense_retriever import DenseRetriever
+from agent.retrievers.hybrid_retriever import HybridRetriever
 
 SPARSE_RETRIEVER_PICKLE = 'sparse_bm25.pkl'
 CONFIG_PICKLE = 'config.pkl'
@@ -51,7 +52,7 @@ def save_retriever(retriever: HybridRetriever, save_dir=RETRIEVER_DIR):
     print(f"Retriever saved in {save_dir}")
 
 
-def load_retriever(save_dir=RETRIEVER_DIR) -> Retriever:
+def load_retriever(save_dir=RETRIEVER_DIR) -> HybridRetriever:
     """
     Loads the retriever previously saved
     :param save_dir: directory where retriever is saved
