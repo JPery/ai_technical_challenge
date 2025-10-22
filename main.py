@@ -6,7 +6,7 @@ app = FastAPI()
 
 @app.get("/")
 async def get():
-    with open("index.html", encoding="utf8") as f:
+    with open("front/index.html", encoding="utf8") as f:
         return HTMLResponse(f.read())
 
 
