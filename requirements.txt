@@ -5,5 +5,7 @@ pypdf==6.1.2
 sentence-transformers==5.1.1
 scikit-learn==1.7.2
 fastapi==0.119.1
+uvicorn==0.38.0
+websockets==15.0.1
 pinecone==7.3.0
 pinecone-text==0.11.0

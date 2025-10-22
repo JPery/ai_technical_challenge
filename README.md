@@ -49,7 +49,7 @@ export PINECONE_API_KEY='your_pinecone_api_key'
 To run the agent, you can run the main script with fastapi:
 
 ```bash
-fastapi dev main.py
+uvicorn main:app
 ```
 
 ### Challenge Queries
