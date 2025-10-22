@@ -48,7 +48,7 @@ export OPENAI_API_URL='your_openai_api_proxy_url'
 To run the agent, you can run the main script with fastapi:
 
 ```bash
-fastapi dev main.py
+uvicorn main:app
 ```
 
 ### Challenge Queries
