@@ -5,7 +5,7 @@ from openai import OpenAI
 import nltk
 from agent.constants import SYSTEM_PROMPT, DEFAULT_LANG, DEFAULT_TOP_K, CONTEXT_PROMPT, OPENAI_API_KEY, \
     OPENAI_API_URL, DEFAULT_TEMPERATURE, DEFAULT_TOP_P, DATA_FOLDER, LLM_MODEL_NAME, RETRIEVER_DIR
-from agent.retrievers import HybridRetriever
+from agent.retrievers.hybrid_retriever import HybridRetriever
 from agent.utils import load_retriever, save_retriever, load_and_preprocess_data
 
 LOGGER = logging.getLogger("airline-agent:agent")
