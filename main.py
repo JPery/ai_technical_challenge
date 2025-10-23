@@ -35,5 +35,4 @@ async def websocket_endpoint(websocket: WebSocket):
                     "message": new_content
                 })
         chatbot.save_new_message(user_query, response)
-        chatbot.clear_history()
 
