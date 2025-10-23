@@ -5,8 +5,8 @@ from openai import OpenAI
 import nltk
 from agent.constants import SYSTEM_PROMPT, DEFAULT_LANG, DEFAULT_TOP_K, CONTEXT_PROMPT, OPENAI_API_KEY, \
     OPENAI_API_URL, DEFAULT_TEMPERATURE, DEFAULT_TOP_P, DATA_FOLDER, LLM_MODEL_NAME, RETRIEVER_DIR
+from agent.retrievers import load_and_preprocess_data
 from agent.retrievers.hybrid_retriever import HybridRetriever
-from agent.utils import load_retriever, save_retriever, load_and_preprocess_data
 
 LOGGER = logging.getLogger("airline-agent:agent")
 
@@ -23,16 +23,14 @@ def setup_agent():
     # Loads an existing retriever or creates a new one
     if os.path.exists(RETRIEVER_DIR):
         LOGGER.info(f"Loading retriever from {RETRIEVER_DIR}")
-        retriever = load_retriever()
+        retriever = HybridRetriever()
+        retriever.load(RETRIEVER_DIR)
     else:
         LOGGER.info(f"Creating new retriever")
-        # Carga el dataset
-        dataset = load_and_preprocess_data(DATA_FOLDER)
         retriever = HybridRetriever()
-        retriever.build_index(dataset, lang=DEFAULT_LANG)
+        retriever.build_index(load_and_preprocess_data(DATA_FOLDER), lang=DEFAULT_LANG)
         LOGGER.info(f"Saving retriever in {RETRIEVER_DIR}")
-        save_retriever(retriever)
-        retriever = retriever
+        retriever.save(RETRIEVER_DIR)
 
     # Initializes agent
     return Agent(retriever)

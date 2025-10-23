@@ -1,8 +1,15 @@
+import logging
+import os
+import pickle
 from typing import List, Tuple
-from agent.constants import SENTENCE_TRANSFORMER_MODEL, DEFAULT_LANG, DEFAULT_TOP_K, MIN_HYBRID_RETRIEVER_SCORE
-from agent.retrievers import Retriever
+from agent.constants import SENTENCE_TRANSFORMER_MODEL, DEFAULT_LANG, DEFAULT_TOP_K, MIN_HYBRID_RETRIEVER_SCORE, \
+    RETRIEVER_DIR, DATA_FOLDER
+from agent.retrievers import Retriever, load_and_preprocess_data
 from agent.retrievers.dense_retriever import DenseRetriever
 from agent.retrievers.sparse_retriever import SparseRetriever
+
+SPARSE_RETRIEVER_PICKLE = 'sparse_bm25.pkl'
+CONFIG_PICKLE = 'config.pkl'
 
 
 class HybridRetriever(Retriever):
@@ -41,3 +48,53 @@ class HybridRetriever(Retriever):
                                 key=lambda x: x[1]['score'],
                                 reverse=True)[:top_k]
         return [(x['text'], x['score'], _id) for _id, x in sorted_results if x['score'] > MIN_HYBRID_RETRIEVER_SCORE]
+
+    def save(self, save_dir=RETRIEVER_DIR):
+        """
+        Saves the retriever to be loaded later
+        :param retriever: retriever to be saved
+        :param save_dir: directory to save the retriever
+        :return:
+        """
+        # Create directory if it doesn't exist
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
+        # Save sparse retriever data
+        with open(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE), 'wb') as f:
+            pickle.dump(self.sparse_retriever.model, f)
+
+        # Save model name and weights
+        config = {
+            'model_name': self.model,
+            'weight_sparse': self.weight_sparse,
+            'weight_dense': self.weight_dense,
+        }
+        with open(os.path.join(save_dir, CONFIG_PICKLE), 'wb') as f:
+            pickle.dump(config, f)
+
+        print(f"Retriever saved in {save_dir}")
+
+    def load(self, save_dir=RETRIEVER_DIR):
+        """
+        Loads the retriever previously saved
+        :param save_dir: directory where retriever is saved
+        :return: Retriever previously saved
+        """
+        # Load retriever config
+        with open(os.path.join(save_dir, CONFIG_PICKLE), 'rb') as f:
+            config = pickle.load(f)
+
+        # Initialize retriever with saved config
+        self.sparse_retriever = SparseRetriever()
+        self.dense_retriever = DenseRetriever(config['model_name'])
+
+        # Initialize index if does not exist the path
+        if not os.path.exists(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE)):
+            self.build_index(load_and_preprocess_data(DATA_FOLDER), lang=DEFAULT_LANG)
+        else:
+            # Load sparse retriever data
+            with open(os.path.join(save_dir, SPARSE_RETRIEVER_PICKLE), 'rb') as f:
+                self.sparse_retriever.model = pickle.load(f)
+
+            logging.getLogger("airline-agent:utils").info(f"Retriever loaded from {save_dir}")

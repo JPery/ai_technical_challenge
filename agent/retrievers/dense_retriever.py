@@ -5,7 +5,6 @@ from agent.constants import SENTENCE_TRANSFORMER_MODEL, DEFAULT_LANG, PINECONE_A
 from agent.retrievers import Retriever, TextPreprocessor, namespace
 
 dense_index_name = "airline-dense"
-pc = Pinecone(api_key=PINECONE_API_KEY)
 
 class DenseRetriever(Retriever):
 
@@ -14,6 +13,7 @@ class DenseRetriever(Retriever):
         self.model = SentenceTransformer(model)
 
     def build_index(self, documents: List[str], lang: str = DEFAULT_LANG):
+        pc = Pinecone(api_key=PINECONE_API_KEY)
         if not pc.has_index(dense_index_name):
             processed_docs = [TextPreprocessor.preprocess(doc, DEFAULT_LANG) for doc in documents]
             embeddings = self.model.encode(processed_docs, show_progress_bar=True)
@@ -39,8 +39,8 @@ class DenseRetriever(Retriever):
     def search(self, query: str, top_k: int = DEFAULT_TOP_K, lang: str = DEFAULT_LANG) -> List[Tuple[str, float, str]]:
         processed_query = TextPreprocessor.preprocess(query, lang)
         vector = self.model.encode(processed_query)
-        dense_index = pc.Index(dense_index_name)
-        a = dense_index.query(namespace=namespace,
+        dense_index = Pinecone(api_key=PINECONE_API_KEY).Index(dense_index_name)
+        query_result = dense_index.query(namespace=namespace,
                               vector=vector.tolist(),
                               top_k=top_k,
                               include_metadata=True,
@@ -50,4 +50,4 @@ class DenseRetriever(Retriever):
             x.metadata['text'],
             x.score,
             x.id
-        ) for x in a.matches]
+        ) for x in query_result.matches]

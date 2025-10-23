@@ -1,3 +1,4 @@
+import glob
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from nltk import word_tokenize
@@ -5,6 +6,19 @@ from nltk.corpus import stopwords
 from agent.constants import DEFAULT_LANG, DEFAULT_TOP_K
 
 namespace = "airline-namespace"
+
+def load_and_preprocess_data(path: str) -> List[str]:
+    """
+    Loads parsed data and preprocesses it to feed a retriever.
+    :param path: path to parsed data
+    :return: list of texts of the parsed data
+    """
+    texts = []
+    for item in sorted(glob.glob(f"{path}/*.txt")):
+        with open(item, "r", encoding="utf8") as f:
+            text = f.read()
+            texts.append(text)
+    return texts
 
 class TextPreprocessor:
 
