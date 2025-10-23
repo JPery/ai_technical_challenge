@@ -15,22 +15,23 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     chatbot = setup_agent()
     await websocket.send_json({
-        "role": "loaded-model",
-        "message": None
+        "action": "loaded-agent"
     })
     while True:
         user_query = await websocket.receive_text()
         await websocket.send_json({
+            "action": "message",
             "role": "user",
             "message": user_query
         })
-        completion = chatbot.chat(user_query)  # Obtenemos la respuesta
+        completion = chatbot.chat(user_query)
         response = ""
         for chunk in completion:
             if chunk.choices[0].delta.content is not None:
                 new_content = chunk.choices[0].delta.content
                 response += new_content
                 await websocket.send_json({
+                    "action": "message",
                     "role": "agent",
                     "message": new_content
                 })

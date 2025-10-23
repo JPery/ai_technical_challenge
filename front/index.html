@@ -67,9 +67,16 @@
         }
 
         #loader{
-            text-align: center;
+          text-align: center;
           margin: 50vh auto 0;
           transform: translateY(-100%);
+          position: fixed;
+          width: fit-content;
+          right: 0;
+          left: 0;
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 24px;
+          padding: 24px;
         }
 
         #spinner {
@@ -117,29 +124,42 @@
         <ul id='messages'>
         </ul>
         <script>
+            function newMessageBubble(data){
+                const content = document.createElement('p')
+                content.textContent = data.message
+                const message = document.createElement('li')
+                message.classList.add("role-" + data.role)
+                message.appendChild(content)
+                 document.getElementById('messages').appendChild(message)
+            }
             const ws = new WebSocket("ws://localhost:8000/ws");
             ws.onmessage = async function(event) {
                 const messages = document.getElementById('messages')
                 const data = await JSON.parse(event.data);
-                console.log(data);
-                switch (data.role){
-                    case 'loaded-model':
+                switch (data.action){
+                    case 'loaded-agent':
                         document.getElementById('messageText').disabled = false;
                         document.getElementById('sendButton').disabled = false;
                         document.getElementById('loader').style.display = "none";
                         break;
-                    case 'agent':
-                        if (messages.children.length > 0 && messages.children[messages.children.length-1].classList.value === 'role-agent'){
-                            messages.children[messages.children.length-1].children[0].textContent += data.message
-                            break
+                    case 'message':
+                        if (data.role === 'agent'){
+                            if (messages.children.length > 0 && messages.children[messages.children.length-1].classList.value === 'role-agent'){
+                                messages.children[messages.children.length-1].children[0].textContent += data.message
+                            }
+                            else{
+                                document.getElementById('loader').style.display = "none";
+                                newMessageBubble(data);
+                            }
                         }
+                        else{
+                            newMessageBubble(data)
+                            document.getElementById('loader').style.display = "grid";
+                        }
+                        window.scrollTo(0, document.body.scrollHeight);
+                       break;
                     default:
-                        const content = document.createElement('p')
-                        content.textContent = data.message
-                        const message = document.createElement('li')
-                        message.classList.add("role-" + data.role)
-                        message.appendChild(content)
-                        messages.appendChild(message)
+                        console.error("Received unknown action: " + data.action);
                 }
             };
             function sendMessage(event) {
