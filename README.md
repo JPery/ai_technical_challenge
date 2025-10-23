@@ -9,6 +9,22 @@ Chatbot application that can answer questions about airline policies. The applic
 3. **Document Processing**: In order to extract text from the policy documents, a script `policy_parser.py` was created. It uses `pypdf` in order to parse PDF files.
 4. **Vector Database**: In order to do an efficient similarity search, an Hybrid Retriever (70% dense, 30% sparse) has been developed using the model `sentence-transformers/all-MiniLM-L6-v2` as Dense Retriever and a `BM25` as Sparse Retriever. Pinecone has been used as vector database in order to store all the generated embeddings.
 
+## Installation with docker
+
+The software can be built with docker by running
+
+```bash
+docker build -t airline . 
+```
+
+Then, in order to run the server you can run
+
+```bash
+docker run -p 8000:8000 --env OPENAI_API_KEY="your_openai_api_key" --env OPENAI_API_URL="your_openai_api_url" --env PINECONE_API_KEY="your_pinecone_api_key" airline
+```
+
+Once running, you can access http://localhost:8000 to interact with the application
+
 ## Installation
 
 Create a virtual environment and activate it:
@@ -46,11 +62,13 @@ export OPENAI_API_URL='your_openai_api_proxy_url'
 export PINECONE_API_KEY='your_pinecone_api_key'
 ```
 
-To run the agent, you can run the main script with fastapi:
+To run the software, you can run the main script with uvicorn:
 
 ```bash
 uvicorn main:app
 ```
+
+Once running, you can access http://localhost:8000 to interact with the application
 
 ### Challenge Queries
 
